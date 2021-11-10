@@ -182,6 +182,6 @@ function federalIncomeTax(income) {
   return taxesPayable.reduce((acc, el) => acc + el);
 }
 
-(function test() {
-  console.log(canadaPensionPlanDeduction(400000));
-})();
+// (function test() {
+//   console.log(canadaPensionPlanDeduction(400000));
+// })();

@@ -39,14 +39,14 @@ INCOMETAXCAN2021(80000, "net_pay");
 
 ### Types
 
-total_tax: All provincial income taxes and federal income taxes.
-total_deductions: Canada Pension Plan deductions and Employment Insurance deductions.
-net_pay: Income minus total tax (`total_tax`) minus total deductions (`total_deductions`).
-total_provincial_tax: All provincial taxes, including the provincial surtax.
-provincial_tax: Only provincial income tax, excluding the provincial surtax.
-provincial_surtax: Only the provincial surtax, excluding the provincial income tax.
-federal_tax: Federal income taxes.
-tax_rate: Federal and provincial income taxes (incl. provincial surtax) divided by income.
-canada_pension_plan: Canada Pension Plan deductions.
-ei_deduction: Employment Insurance Deductions
-net_pay_rate: Net pay divided by income.
+- total_tax: All provincial income taxes and federal income taxes.
+- total_deductions: Canada Pension Plan deductions and Employment Insurance deductions.
+- net_pay: Income minus total tax (`total_tax`) minus total deductions (`total_deductions`).
+- total_provincial_tax: All provincial taxes, including the provincial surtax.
+- provincial_tax: Only provincial income tax, excluding the provincial surtax.
+- provincial_surtax: Only the provincial surtax, excluding the provincial income tax.
+- federal_tax: Federal income taxes.
+- tax_rate: Federal and provincial income taxes (incl. provincial surtax) divided by income.
+- canada_pension_plan: Canada Pension Plan deductions.
+- ei_deduction: Employment Insurance Deductions
+- net_pay_rate: Net pay divided by income.
