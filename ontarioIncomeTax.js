@@ -23,9 +23,9 @@ PROVINCIAL_TAX_BRACKETS = {
  * provincial taxes and the provincial surtax.
  *
  * @param {number} income Employment income earned
- * @param {number} type Either "total_tax", "after_tax_income", "total_provincial_tax", "provincial_tax", "provincial_surtax",
- * "federal_tax", "tax_rate"
- * @return Total
+ * @param {string} type Either "total_tax", "total_deductions", "net_pay", "total_provincial_tax", "provincial_tax",
+ * "provincial_surtax", "federal_tax", "tax_rate", "canada_pension_plan", "ei_deduction", "net_pay_rate"
+ * @return Dollar amount of the provided type
  * @customfunction
  */
 function INCOMETAXCAN2021(income, type = "total_tax") {
@@ -35,15 +35,23 @@ function INCOMETAXCAN2021(income, type = "total_tax") {
   const provincial_surtax = ontarioSurtax(income);
   const total_provincial_tax = provincial_tax + provincial_surtax;
   const federal_tax = federalIncomeTax(income);
+  const canada_pension_plan = canadaPensionPlanDeduction(income);
+  const ei_deduction = employmentInsuranceDeduction(income);
+  const total_tax = total_provincial_tax + federal_tax;
+  const total_deductions = canada_pension_plan + ei_deduction;
 
   const taxBreakdown = {
+    total_tax,
+    total_deductions,
+    net_pay: income - total_tax - total_deductions,
+    total_provincial_tax,
     provincial_tax,
     provincial_surtax,
-    total_provincial_tax,
     federal_tax,
-    total_tax: total_provincial_tax + federal_tax,
-    after_tax_income: income - total_provincial_tax - federal_tax,
     tax_rate: (total_provincial_tax + federal_tax) / income,
+    canada_pension_plan,
+    ei_deduction,
+    net_pay_rate: (income - total_tax - total_deductions) / income,
   };
   return taxBreakdown[type];
 }
@@ -65,6 +73,57 @@ function ontarioIncomeTax(income) {
   });
 
   return taxesPayable.reduce((acc, el) => acc + el);
+}
+
+/**
+ * Calculates employment insurance deduction from salary
+ *
+ * @param {number} income Employment income earned
+ * @return Employment insurance deducted
+ * @customfunction
+ */
+function employmentInsuranceDeduction(income) {
+  // Note: Ei is typically deducted at some rate (~1.58%) up to a maximum amount
+  // (e.x. 56,000). This is set federally. Search "EI premium rates and maximums"
+  // for more information.
+
+  // max, rate
+  const eiBrackets = [56300, 0.0158];
+
+  const taxableAmt = income > eiBrackets[0] ? eiBrackets[0] : income;
+  const taxesPayable = taxableAmt * eiBrackets[1];
+
+  return taxesPayable;
+}
+
+/**
+ * Calculates Canada Pension Plan (CPP) deduction from salary
+ *
+ * @param {number} income Employment income earned
+ * @return Amount of Canada Pension Plan deducted
+ * @customfunction
+ */
+function canadaPensionPlanDeduction(income) {
+  // Note: CPP is calculated by taking the gross income, deducting the
+  // basic yearly exemption (~3500), and multiplying the result by the
+  // CPP contribution rate (~5.1%). This amount should not exceed the
+  // sum of the maximum annual employee and employer contribution (~3166).
+  const maxPensionableEarnings = 61600.0;
+  const basicExemption = 3500.0;
+  const contributionRate = 0.0545;
+  const maximumEmployeeAndEmployerConribution = 3166.45;
+
+  const earnings = Math.min(
+    Math.max(income - basicExemption, 0),
+    maxPensionableEarnings
+  );
+  // take the minimum of the max amount and calculated amount
+  const taxesPayable = Math.min(
+    earnings * contributionRate,
+    maximumEmployeeAndEmployerConribution
+  );
+
+  return taxesPayable;
 }
 
 /**
@@ -124,5 +183,5 @@ function federalIncomeTax(income) {
 }
 
 (function test() {
-  console.log(INCOMETAXCAN2021(113000));
+  console.log(canadaPensionPlanDeduction(400000));
 })();
